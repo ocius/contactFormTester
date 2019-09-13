@@ -14,13 +14,15 @@ namespace contactFormTests
         private static string GetToken()
         {
             var chromeOptions = new ChromeOptions();
-            chromeOptions.AddArgument("headless");
+            //chromeOptions.AddArgument("headless");
 
             var directory = Environment.CurrentDirectory;
             var driver = new ChromeDriver(directory, chromeOptions);
 
             driver.Navigate().GoToUrl("https://ocius.com.au/usv#technical");
-            var textInput = driver.FindElementById("technical").Text;
+            var textInput = driver.FindElementByName("fullName").GetAttribute("placeholder");
+
+
             driver.Quit();
             return textInput;
 
