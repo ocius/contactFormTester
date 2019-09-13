@@ -1,4 +1,4 @@
-chromedriver.exe
-/bin
-/obj
+bin
+obj
+packages
 .vs
