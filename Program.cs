@@ -7,11 +7,11 @@ namespace contactFormTests
     {
         static void Main(string[] args)
         {
-            GetToken();
-            Console.WriteLine("Hello World!");
+            var foo = GetToken();
+            Console.WriteLine(foo);
         }
 
-        private static void GetToken()
+        private static string GetToken()
         {
             var chromeOptions = new ChromeOptions();
             chromeOptions.AddArgument("headless");
@@ -19,8 +19,11 @@ namespace contactFormTests
             var directory = Environment.CurrentDirectory;
             var driver = new ChromeDriver(directory, chromeOptions);
 
-            driver.Navigate().GoToUrl("https://ocius.com.au");
+            driver.Navigate().GoToUrl("https://ocius.com.au/usv#technical");
+            var textInput = driver.FindElementById("technical").Text;
             driver.Quit();
+            return textInput;
+
         }
     }
 }
