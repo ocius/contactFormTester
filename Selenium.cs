@@ -12,7 +12,7 @@ namespace TestContactForm
             var chromeOptions = new ChromeOptions();
             chromeOptions.AddArgument("headless");
 
-            var directory = Environment.CurrentDirectory;
+            var directory = AppDomain.CurrentDomain.BaseDirectory;
             var driver = new ChromeDriver(directory, chromeOptions);
 
             driver.Navigate().GoToUrl("https://ocius.com.au/usv#technical");
