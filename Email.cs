@@ -15,52 +15,37 @@ namespace TestContactForm
         static readonly string[] Scopes = { GmailService.Scope.GmailSend };
         static readonly string ApplicationName = "Ocius Contact Form Tester";
 
-        public static void SendFailureEmail()
+        public static void SendFailureEmail(string contactFormResponse)
         {
             UserCredential credential;
 
-            using (var stream =
-                new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
+            using (var stream = new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
             {
-                // The file token.json stores the user's access and refresh tokens, and is created
-                // automatically when the authorization flow completes for the first time.
-                string credPath = "token.json";
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    GoogleClientSecrets.Load(stream).Secrets,
-                    Scopes,
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true)).Result;
-                Console.WriteLine("Credential file saved to: " + credPath);
+                credential = GoogleWebAuthorizationBroker
+                    .AuthorizeAsync(GoogleClientSecrets
+                    .Load(stream).Secrets, Scopes, "user", CancellationToken.None, new FileDataStore("token.json", true))
+                    .Result;
             }
 
-            // Create Gmail API service.
-            var service = new GmailService(new BaseClientService.Initializer()
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = ApplicationName,
-            });
+            var message = CreateMessage(contactFormResponse);
 
-            //Create Message
+            SendMessage(credential, message);
+        }
+
+        private static Message CreateMessage(string contactFormResponse)
+        {
             MailMessage mail = new MailMessage
             {
                 Subject = "FAILURE: Could not submit contact form",
-                Body = "The attempt to submit the form for Ocuis tech specs failed",
+                Body = contactFormResponse,
                 From = new MailAddress("tjdane@gmail.com"),
                 IsBodyHtml = true
             };
-            mail.To.Add(new MailAddress("tom@ocius.com.au"));
             mail.To.Add(new MailAddress("tjdane@gmail.com"));
 
             MimeKit.MimeMessage mimeMessage = MimeKit.MimeMessage.CreateFromMailMessage(mail);
 
-            Message message = new Message
-            {
-                Raw = Base64UrlEncode(mimeMessage.ToString())
-            };
-
-            //Send message
-            service.Users.Messages.Send(message, "tjdane@gmail.com").Execute();
+            return new Message { Raw = Base64UrlEncode(mimeMessage.ToString()) };
         }
 
         private static string Base64UrlEncode(string input)
@@ -70,6 +55,20 @@ namespace TestContactForm
               .Replace('+', '-')
               .Replace('/', '_')
               .Replace("=", "");
+        }
+
+        private static void SendMessage(UserCredential credential, Message message)
+        {
+            var service = new GmailService(new BaseClientService.Initializer()
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = ApplicationName,
+            });
+
+            using (service)
+            {
+                service.Users.Messages.Send(message, "tjdane@gmail.com").Execute();
+            }
         }
     }
 }

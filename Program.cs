@@ -1,6 +1,4 @@
-﻿using TestContactForm;
-
-namespace GmailQuickstart
+﻿namespace TestContactForm
 {
     class Program
     {
@@ -8,9 +6,7 @@ namespace GmailQuickstart
         {
             var contactFormResponse = Selenium.SubmitForm();
 
-            if (contactFormResponse.Contains("success")) return;
-
-            Email.SendFailureEmail();
+            if (!contactFormResponse.Contains("success")) Email.SendFailureEmail(contactFormResponse);
         }
     }
 }
