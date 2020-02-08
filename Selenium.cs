@@ -2,6 +2,7 @@
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using System;
+using System.Threading;
 
 namespace TestContactForm
 {
@@ -21,7 +22,8 @@ namespace TestContactForm
             var directory = AppDomain.CurrentDomain.BaseDirectory;
             var chromeOptions = new ChromeOptions();
             chromeOptions.AddArgument("headless");
-            return new ChromeDriver(directory, chromeOptions);
+            var driver = new ChromeDriver(directory, chromeOptions);
+            return driver;
         }
 
         private static string GetSubmitMessage(ChromeDriver driver)
@@ -39,6 +41,7 @@ namespace TestContactForm
 
         private static ChromeDriver FillOutForm(ChromeDriver driver)
         {
+            Thread.Sleep(2000); //Ensure page is loaded
             driver.FindElementByName("fullName").SendKeys("Test - Tom Dane");
             driver.FindElementByName("email").SendKeys("ocius@tomdane.com");
             driver.FindElementByName("interest").SendKeys("Testing");
