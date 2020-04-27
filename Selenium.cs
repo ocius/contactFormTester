@@ -1,19 +1,16 @@
-﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
+﻿using OpenQA.Selenium.Chrome;
 using System;
-using System.Threading;
 
 namespace TestContactForm
 {
     public class Selenium
     {
-        public static string SubmitForm()
+        public static bool SubmitForm()
         {
             using (var driver = GetDriver())
             {
                 driver.Navigate().GoToUrl("https://ocius.com.au/usv#technical");
-                return GetSubmitMessage(driver);
+                return CanSubmitForm(driver);
             }
         }
 
@@ -26,36 +23,34 @@ namespace TestContactForm
             return driver;
         }
 
-        private static string GetSubmitMessage(ChromeDriver driver)
+        private static bool CanSubmitForm(ChromeDriver driver)
         {
-            try
-            {
-                var completedForm = FillOutForm(driver);
-                return GetSuccessText(completedForm);
-            }
-            catch (Exception e)
-            {
-                return e.Message.ToString();
-            }
+            var completedForm = FillOutForm(driver);
+            return IsSuccessTextDisplayed(completedForm);
         }
 
         private static ChromeDriver FillOutForm(ChromeDriver driver)
         {
-            Thread.Sleep(2000); //Ensure page is loaded
+            WaitForPageLoad(driver);
             driver.FindElementByName("fullName").SendKeys("Test - Tom Dane");
             driver.FindElementByName("email").SendKeys("ocius@tomdane.com");
             driver.FindElementByName("interest").SendKeys("Testing");
-            driver.FindElementByXPath("//*[@id='___gatsby']/div/div/div/div[3]/form/button").Click();
+            driver.FindElementByClassName("Button").Click();
             return driver;
         }
 
-        private static string GetSuccessText(ChromeDriver driver)
+        private static void WaitForPageLoad(ChromeDriver driver)
         {
-            var messageXPath = "//*[@id='___gatsby']/div/div/div/div[3]/form/span";
-            var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
-            var element = wait.Until(ExpectedConditions.ElementIsVisible(By.XPath(messageXPath)));
-            var message = element.Text;
-            return message;
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(5);
+        }
+
+        private static bool IsSuccessTextDisplayed(ChromeDriver driver)
+        {
+            WaitForPageLoad(driver);
+
+            var body = driver.FindElementByTagName("span").Text;
+
+            return body.Contains("Your message was sent successfully");
         }
     }
 }

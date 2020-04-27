@@ -6,18 +6,15 @@ namespace TestContactForm
     {
         static void Main()
         {
-            string response;
-
             try
             {
-                response = Selenium.SubmitForm();
+                var isSuccess = Selenium.SubmitForm();
+                if (!isSuccess) Email.SendFailureEmail("Form submission failed");
             }
             catch(Exception e)
             {
-                response = e.Message;
+                Email.SendFailureEmail(e.Message);
             }
-
-            if (!response.Contains("success")) Email.SendFailureEmail(response);
         }
     }
 }
